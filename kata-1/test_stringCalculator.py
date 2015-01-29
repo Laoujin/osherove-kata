@@ -14,8 +14,22 @@ def add(numbers):
 	delimiter = ","
 
 	if numbers[:2] == "//":
-		delimiter = numbers[2]
-		numbers = numbers[4:]
+		numbers = numbers[2:]
+
+		(delimiter, nl, numbers) = numbers.partition("\n")
+
+		if len(delimiter) > 1:
+			delimiter = delimiter[1:-1]
+
+		# first implementation :)
+		# d = numbers.split("\n", 1)[0]
+
+		# if len(d) == 1:
+		# 	delimiter = d[0]
+		# 	numbers = numbers[2:]
+		# else:
+		# 	delimiter = d[1:-1]
+		# 	numbers = numbers.partition("\n")[2]
 
 	numbers = numbers.replace("\n", delimiter)
 
@@ -65,3 +79,7 @@ def test_negative_can_be_delimiter_without_exception():
 # ex 6
 def test_numbers_above_1000_are_ignored():
 	assert add("2,1001,1") == 3
+
+# ex 7
+def test_any_length_delimiter():
+	assert add("//[***]\n1***2***3") == 6
