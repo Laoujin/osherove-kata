@@ -7,42 +7,71 @@
 
 import pytest
 import re
+from mock import Mock
 
-def add(numbers):
-	if numbers == "":
-		return 0
+class Calculator:
+	def __init__(self, logger = None):
+		self.logger = logger
 
-	# read delimiter meta
-	delimiters = [","]
-	if numbers[:2] == "//":
-		numbers = numbers[2:]
-
-		(delimiters, nl, numbers) = numbers.partition("\n")
-
-		if len(delimiters) > 1:
-			if not "][" in delimiters:
-				delimiters = [delimiters[1:-1]]
-			else:
-				delimiters = delimiters[1:-1].split("][")
+	def add(self, numbers):
+		if numbers == "":
+			total = 0
 
 		else:
-			delimiters = [delimiters]
+			# read delimiter meta
+			delimiters = [","]
+			if numbers[:2] == "//":
+				numbers = numbers[2:]
 
-	# escape for regex split
-	for specialRegexChar in list("\\*+.?(){}[]^$|"):
-		delimiters = list(map(lambda d: d.replace(specialRegexChar, "\\" + specialRegexChar), delimiters))
+				(delimiters, nl, numbers) = numbers.partition("\n")
 
-	delimiters.append("\\n")
+				if len(delimiters) > 1:
+					if not "][" in delimiters:
+						delimiters = [delimiters[1:-1]]
+					else:
+						delimiters = delimiters[1:-1].split("][")
 
-	numbers = re.split("|".join(delimiters), numbers)
-	numbers = list(map(int, numbers))
+				else:
+					delimiters = [delimiters]
 
-	if any(n < 0 for n in numbers):
-		raise Exception("negatives not allowed: " + str(list(n for n in numbers if n < 0)))
+			# escape for regex split
+			for specialRegexChar in list("\\*+.?(){}[]^$|"):
+				delimiters = list(map(lambda d: d.replace(specialRegexChar, "\\" + specialRegexChar), delimiters))
 
-	return sum(n for n in numbers if n <= 1000)
+			delimiters.append("\\n")
+
+			numbers = re.split("|".join(delimiters), numbers)
+			numbers = list(map(int, numbers))
+
+			if any(n < 0 for n in numbers):
+				raise Exception("negatives not allowed: " + str(list(n for n in numbers if n < 0)))
+
+			total = sum(n for n in numbers if n <= 1000)
+
+
+		if not self.logger is None:
+			self.logger.write(total)
+
+		return total
+
+############################## KATA-2 TESTS
+
+# ex 1
+def test_logger_writes_result():
+	logger = Mock()
+	calcer = Calculator(logger)
+
+	total = calcer.add("1,2,3")
+
+	logger.write.assert_called_with(6)
+
 
 ############################## KATA-1 TESTS
+
+def add(numbers):
+	# for backwards compatibility :p
+	calcer = Calculator()
+	return calcer.add(numbers)
 
 # ex 1
 def test_empty_string_returns_0():
