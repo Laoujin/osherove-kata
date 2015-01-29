@@ -5,15 +5,19 @@
 
 ############################ TEST SUBJECT
 
+import sys
 import pytest
 import re
 from mock import Mock
 
 class Calculator:
-	def __init__(self, logger = None):
+	def __init__(self, logger = None, log_ex_service = None):
 		self.logger = logger
+		self.log_ex_service = log_ex_service
 
 	def add(self, numbers):
+		inputNumbers = numbers
+
 		if numbers == "":
 			total = 0
 
@@ -49,8 +53,12 @@ class Calculator:
 			total = sum(n for n in numbers if n <= 1000)
 
 
-		if not self.logger is None:
-			self.logger.write(total)
+		if self.logger is not None:
+			try:
+				self.logger.write(total)
+			except:
+				if self.log_ex_service is not None:
+					self.log_ex_service.error("Error with input: " + inputNumbers + "\n" + str(sys.exc_info()[0]))
 
 		return total
 
@@ -63,8 +71,22 @@ def test_logger_writes_result():
 
 	total = calcer.add("1,2,3")
 
-	logger.write.assert_called_with(6)
+	logger.write.assert_called_with(total)
 
+# ex 2
+class ThrowingLogger:
+	def write(self, input):
+		raise
+
+def test_failing_log_calls_service():
+	#logger = Mock(write=Exception("IO error"))
+	logger = ThrowingLogger()
+	service = Mock()
+	calcer = Calculator(logger, service)
+
+	calcer.add("1,2,3")
+
+	assert service.error.called
 
 ############################## KATA-1 TESTS
 
