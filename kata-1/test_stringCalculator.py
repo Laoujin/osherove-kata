@@ -17,15 +17,13 @@ def add(numbers):
 		delimiter = numbers[2]
 		numbers = numbers[4:]
 
-	if "-" in numbers:
-		raise Exception("negatives not allowed")
-
 	numbers = numbers.replace("\n", delimiter)
 
 	numbers = numbers.split(delimiter)
-	numbers = map(int, numbers)
+	numbers = list(map(int, numbers))
 
-
+	if any(n < 0 for n in numbers):
+		raise Exception("negatives not allowed: " + str(list(n for n in numbers if n < 0)))
 
 	return sum(numbers)
 
@@ -56,5 +54,10 @@ def test_delimiter_prefix():
 
 # ex 5
 def test_negative_number_throws():
-	with pytest.raises(Exception):
+	with pytest.raises(Exception) as ex:
 		add("1,2,-5")
+
+	assert '-5' in str(ex.value)
+
+def test_negative_can_be_delimiter_without_exception():
+	assert add("//-\n1-2") == 3
