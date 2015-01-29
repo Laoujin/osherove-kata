@@ -6,34 +6,35 @@
 ############################ TEST SUBJECT
 
 import pytest
+import re
 
 def add(numbers):
 	if numbers == "":
 		return 0
 
-	delimiter = ","
-
+	# read delimiter meta
+	delimiters = [","]
 	if numbers[:2] == "//":
 		numbers = numbers[2:]
 
-		(delimiter, nl, numbers) = numbers.partition("\n")
+		(delimiters, nl, numbers) = numbers.partition("\n")
 
-		if len(delimiter) > 1:
-			delimiter = delimiter[1:-1]
+		if len(delimiters) > 1:
+			if not "][" in delimiters:
+				delimiters = [delimiters[1:-1]]
+			else:
+				delimiters = delimiters[1:-1].split("][")
 
-		# first implementation :)
-		# d = numbers.split("\n", 1)[0]
+		else:
+			delimiters = [delimiters]
 
-		# if len(d) == 1:
-		# 	delimiter = d[0]
-		# 	numbers = numbers[2:]
-		# else:
-		# 	delimiter = d[1:-1]
-		# 	numbers = numbers.partition("\n")[2]
+	# escape for regex split
+	for specialRegexChar in list("\\*+.?(){}[]^$|"):
+		delimiters = list(map(lambda d: d.replace(specialRegexChar, "\\" + specialRegexChar), delimiters))
 
-	numbers = numbers.replace("\n", delimiter)
+	delimiters.append("\\n")
 
-	numbers = numbers.split(delimiter)
+	numbers = re.split("|".join(delimiters), numbers)
 	numbers = list(map(int, numbers))
 
 	if any(n < 0 for n in numbers):
@@ -83,3 +84,7 @@ def test_numbers_above_1000_are_ignored():
 # ex 7
 def test_any_length_delimiter():
 	assert add("//[***]\n1***2***3") == 6
+
+# ex 8-9
+def test_allow_multiple_delimiters():
+	assert add("//[*][%]\n1*2%3") == 6
