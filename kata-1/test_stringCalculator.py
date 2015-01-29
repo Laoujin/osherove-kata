@@ -25,7 +25,7 @@ def add(numbers):
 	if any(n < 0 for n in numbers):
 		raise Exception("negatives not allowed: " + str(list(n for n in numbers if n < 0)))
 
-	return sum(numbers)
+	return sum(n for n in numbers if n <= 1000)
 
 ################################### TESTS
 
@@ -61,3 +61,7 @@ def test_negative_number_throws():
 
 def test_negative_can_be_delimiter_without_exception():
 	assert add("//-\n1-2") == 3
+
+# ex 6
+def test_numbers_above_1000_are_ignored():
+	assert add("2,1001,1") == 3
