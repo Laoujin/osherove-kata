@@ -9,12 +9,15 @@ def add(numbers):
 	if numbers == "":
 		return 0
 
-	numbers = numbers.replace("\n", ",")
+	delimiter = ","
 
-	if not "," in numbers:
-		return int(numbers)
+	if numbers[:2] == "//":
+		delimiter = numbers[2]
+		numbers = numbers[4:]
 
-	numbers = numbers.split(",")
+	numbers = numbers.replace("\n", delimiter)
+
+	numbers = numbers.split(delimiter)
 	numbers = map(int, numbers)
 	return sum(numbers)
 
@@ -36,5 +39,9 @@ def test_arbitrary_numbers_get_added():
 	assert add("1,2,3") == 6
 
 # ex 3
-def test_newlines_also_separate():
+def test_newlines_also_separates_input():
 	assert add("1\n2,3") == 6
+
+# ex 4
+def test_delimiter_prefix():
+	assert add("//;\n1;2") == 3
