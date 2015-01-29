@@ -5,6 +5,8 @@
 
 ############################ TEST SUBJECT
 
+import pytest
+
 def add(numbers):
 	if numbers == "":
 		return 0
@@ -15,10 +17,16 @@ def add(numbers):
 		delimiter = numbers[2]
 		numbers = numbers[4:]
 
+	if "-" in numbers:
+		raise Exception("negatives not allowed")
+
 	numbers = numbers.replace("\n", delimiter)
 
 	numbers = numbers.split(delimiter)
 	numbers = map(int, numbers)
+
+
+
 	return sum(numbers)
 
 ################################### TESTS
@@ -45,3 +53,8 @@ def test_newlines_also_separates_input():
 # ex 4
 def test_delimiter_prefix():
 	assert add("//;\n1;2") == 3
+
+# ex 5
+def test_negative_number_throws():
+	with pytest.raises(Exception):
+		add("1,2,-5")
