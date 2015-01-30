@@ -33,9 +33,11 @@ def test_result_also_to_stdout():
 	assert total == int(out)
 
 # ex 1b
-def test_scalc_cli():
+def test_scalc_cli_with_input():
+	scalc.get_input = lambda x: ""
 	scalc.main("1,2,3")
 
 	out = sys.stdout.getvalue()
 
-	assert out.rstrip().endswith("6")
+	assert "6" in out
+
